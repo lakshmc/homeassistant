@@ -2,7 +2,7 @@ homeassistant:
   # Name of the location where Home Assistant is running
   name: Home
   # Location required to calculate the time the sun rises and sets
-  latitude: !secrets my_latitude
+  latitude: !secret my_latitude
   longitude: !secret my_longitude
   # Impacts weather/sunrise data (altitude above sea level in meters)
   elevation: 49
@@ -21,10 +21,7 @@ frontend:
 config:
 
 http:
-  # Uncomment this to add a password (recommended!)
-  # api_password: PASSWORD
-  # Uncomment this if you are using SSL or running in Docker etc
-  # base_url: example.duckdns.org:8123
+  api_password: !secret hass_ui_pwd
 
 # Checks for available updates
 # Note: This component will send some information about your system to
@@ -37,11 +34,6 @@ updater:
 
 # Discover some devices automatically
 discovery:
-
-wemo:
-
-light:
-  - platform: lifx
 
 # Allows you to issue voice commands from the frontend in enabled browsers
 conversation:
@@ -59,6 +51,11 @@ sun:
 sensor:
   platform: yr
 
+logger:
+#  default: info
+#  logs:
+#    homeassistant.components.mqtt: debug
+
 # Text to speech
 tts:
   platform: google
@@ -66,6 +63,29 @@ tts:
 nest:
   client_id: !secret nest_client_id
   client_secret: !secret nest_client_secret
+
+mqtt:
+  broker: 127.0.0.1
+#  client_id: mygateway1 
+
+light:
+  - platform: lifx
+
+mysensors:
+  gateways:
+    - device: mqtt
+      topic_in_prefix: 'mygateway1-out'
+      topic_out_prefix: 'mygateway1-in'
+
+switch:
+  - platform: tplink
+    host: !secret garage_light_ip
+
+device_tracker:
+  - platform: netgear
+    host: !secret netgear_ip
+    username: !secret netgear_username
+    password: !secret netgear_password
 
 group: !include groups.yaml
 automation: !include automations.yaml
